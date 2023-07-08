@@ -17,10 +17,13 @@ const main = () => {
   app.use(express.json());
 
   app.get("", (req, res) => {
+    console.log("req.body", req.body)
     res.json("Test Successfull");
   });
 
   app.post("/register", async (req, res) => {
+    console.log("req.body", req.body)
+
     const userRepository = await AppDataSource.getRepository(User);
     const body = req.body;
     const hash = await argon2.hash(body.password);
@@ -36,7 +39,7 @@ const main = () => {
         res.json(user);
       })
       .catch(() => {
-        return "Error";
+        return { message: "Error" };
       });
   });
 
@@ -52,7 +55,7 @@ const main = () => {
       const check = await argon2.verify(user.password, body.password);
       if (check) {
         const { password, ...rest } = user;
-        res.json(user);
+        res.json(rest);
       } else {
         res.send({ message: "Wrong Credentials" }).status(204);
       }
