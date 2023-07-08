@@ -1,7 +1,8 @@
-# Awesome Project Build with TypeORM
+# Lawn Backend
 
-Steps to run this project:
+Steps to run the backend server:
 
-1. Run `npm i` command
-2. Setup database settings inside `data-source.ts` file
-3. Run `npm start` command
+1. Run `yarn` command to install the packages
+2. Run `yarn start` command
+
+Due to the usage of SQL Lite Database, no database configuration is required.

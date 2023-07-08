@@ -6,20 +6,9 @@ import cors from "cors";
 import * as argon2 from "argon2";
 
 const main = () => {
-  console.log("بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ");
   AppDataSource.initialize()
     .then(async () => {
-      console.log("Alhamdulillah Database has been connected");
-      // user.firstName = "Timber"
-      // user.lastName = "Saw"
-      // user.age = 25
-      // await AppDataSource.manager.save(user)
-      // User.delete({})
-      // console.log("Saved a new user with id: " + user.id)
-
-      // console.log("Loading users from the database...")
-
-      // console.log("Loaded users: ", users)
+      console.log("Database has been connected successfully");
     })
     .catch((error) => console.log(error));
 
@@ -28,14 +17,12 @@ const main = () => {
   app.use(express.json());
 
   app.get("", (req, res) => {
-    console.log("HOME");
-    res.json("HELLO");
+    res.json("Test Successfull");
   });
 
   app.post("/register", async (req, res) => {
     const userRepository = await AppDataSource.getRepository(User);
     const body = req.body;
-    console.log(body);
     const hash = await argon2.hash(body.password);
     let createdUser = await userRepository.create({
       name: body.name,
@@ -90,8 +77,8 @@ const main = () => {
     }
   });
 
-  app.listen(3000, () => {
-    console.log("Server listening at PORT 3000");
+  app.listen(4000, () => {
+    console.log("Server is listening at PORT 4000");
   });
 };
 
