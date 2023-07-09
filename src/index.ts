@@ -18,50 +18,58 @@ const main = () => {
   app.use(express.json());
 
   app.get("", (req, res) => {
-    console.log("req.body", req.body)
+    console.log("req.body", req.body);
     res.json("Test Successfull");
   });
 
   app.post("/register", async (req, res) => {
-    console.log("req.body", req.body)
+    try {
+      console.log("req.body", req.body);
 
-    const userRepository = await AppDataSource.getRepository(User);
-    const body = req.body;
-    const hash = await argon2.hash(body.password);
-    let createdUser = await userRepository.create({
-      name: body.name,
-      email: body.email,
-      password: hash,
-    });
-    await userRepository
-      .save(createdUser)
-      .then(() => {
-        let { password, ...user } = createdUser;
-        res.json(user);
-      })
-      .catch(() => {
-        return { message: "Error" };
+      const userRepository = await AppDataSource.getRepository(User);
+      const body = req.body;
+      const hash = await argon2.hash(body.password);
+      let createdUser = await userRepository.create({
+        name: body.name,
+        email: body.email,
+        password: hash,
       });
+      await userRepository
+        .save(createdUser)
+        .then(() => {
+          let { password, ...user } = createdUser;
+          res.json(user);
+        })
+        .catch(() => {
+          res.json({ message: "User could not be created" });
+        });
+    } catch (err) {
+      res.json({ message: "Something went wrong" });
+    }
   });
 
   app.post("/login", async (req, res) => {
-    const userRepository = await AppDataSource.getRepository(User);
-    const body = req.body;
-    let user = await userRepository.findOne({
-      where: {
-        email: body.email,
-      },
-    });
-    if (user) {
-      const check = await argon2.verify(user.password, body.password);
-      if (check) {
-        const { password, ...rest } = user;
-        res.json(rest);
+    try {
+      const userRepository = await AppDataSource.getRepository(User);
+      const body = req.body;
+      let user = await userRepository.findOne({
+        where: {
+          email: body.email,
+        },
+      });
+      if (user) {
+        const check = await argon2.verify(user.password, body.password);
+        if (check) {
+          const { password, ...rest } = user;
+          res.json(rest);
+        } else {
+          res.send({ message: "Wrong Credentials" }).status(204);
+        }
       } else {
-        res.send({ message: "Wrong Credentials" }).status(204);
+        res.json({ message: "User was not found" });
       }
-    } else {
-      res.send("User was not found").status(404);
+    } catch (err) {
+      res.json({ message: "Something went wrong" });
     }
   });
 
@@ -81,7 +89,6 @@ const main = () => {
     }
   });
 
-
   app.post("/themes/", async (req, res) => {
     const userRepository = await AppDataSource.getRepository(User);
     const themeRepository = await AppDataSource.getRepository(Theme);
@@ -91,8 +98,8 @@ const main = () => {
         id: body.id,
       },
       relations: {
-        themes: true
-      }
+        themes: true,
+      },
     });
     if (user) {
       let themes = await themeRepository.find({
@@ -100,7 +107,7 @@ const main = () => {
           // user: user,
         },
       });
-      console.log("rest", themes)
+      console.log("rest", themes);
       res.json(themes);
     } else {
       res.send("User was not found").status(404);
@@ -116,8 +123,8 @@ const main = () => {
         id: body.id,
       },
       relations: {
-        themes: true
-      }
+        themes: true,
+      },
     });
     if (user) {
       let createdTheme = await themeRepository.create({
@@ -144,13 +151,12 @@ const main = () => {
 
   app.post("/themes/delete", async (req, res) => {
     try {
-
       const themeRepository = await AppDataSource.getRepository(Theme);
       const body = req.body;
       await themeRepository.delete(body.id);
-      res.json("Successfully deletd")
+      res.json("Successfully deletd");
     } catch (err) {
-      res.json({ message: "Error while deleting" })
+      res.json({ message: "Error while deleting" });
     }
   });
 
